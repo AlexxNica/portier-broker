@@ -1,3 +1,4 @@
+extern crate hyper_native_tls;
 use std::error::Error;
 use std::collections::HashMap;
 use emailaddress::EmailAddress;
@@ -8,6 +9,7 @@ use super::error::{BrokerError, BrokerResult};
 use super::hyper::client::Client as HttpClient;
 use super::hyper::header::ContentType as HyContentType;
 use super::hyper::header::Headers;
+use super::hyper::net::HttpsConnector;
 use super::{Config, create_jwt};
 use super::crypto::{session_id, verify_jws};
 use super::store_cache::{CacheKey, fetch_json_url};
@@ -29,6 +31,15 @@ macro_rules! try_get_json_field {
             BrokerError::Provider(format!("{} missing from {}", $key, $descr))
         })?
     }
+}
+
+
+/// Create an `HttpClient` for use with HTTPS.
+fn create_https_client() -> BrokerResult<HttpClient> {
+    let ssl = hyper_native_tls::NativeTlsClient::new().map_err(|e|
+        BrokerError::Custom(format!("failed to create TLS client: {}", e.description()))
+    )?;
+    Ok(HttpClient::with_connector(HttpsConnector::new(ssl)))
 }
 
 
@@ -57,7 +68,7 @@ pub fn request(app: &Config, email_addr: EmailAddress, client_id: &str, nonce: &
         ("redirect", &redirect_uri.to_string()),
     ])?;
 
-    let client = HttpClient::new();
+    let client = create_https_client()?;
 
     // Retrieve the provider's Discovery document and extract the
     // `authorization_endpoint` from it.
@@ -136,7 +147,7 @@ pub fn verify(app: &Config, stored: &HashMap<String, String>, code: &str)
     let origin = &stored["client_id"];
     let nonce = &stored["nonce"];
 
-    let client = HttpClient::new();
+    let client = create_https_client()?;
 
     // Request the provider's Discovery document to get the
     // `token_endpoint` and `jwks_uri` values from it. TODO: save these
