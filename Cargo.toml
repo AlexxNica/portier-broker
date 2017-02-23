@@ -33,13 +33,12 @@ serde = "0.9.7"
 serde_derive = "0.9.7"
 serde_json = "0.9.6"
 time = "0.1.36"
+tokio-core = "0.1.4"
+tokio-smtp = "0.2.0"
 toml = "0.3.0"
 untrusted = "0.3.2"
 url = "1.4.0"
 urlencoded = "0.5.0"
-
-# 0.6.1+git, pending a new release
-lettre = { git = "https://github.com/lettre/lettre.git", rev = "0488e3f943b96a62523e6bc43466a9827fd7bf4c" }
 
 # 0.6.3+patches, pending #445 and a new release
 ring = { git = "https://github.com/stephank/ring.git", rev = "15f5e6b7d117e5340e17b7a655af73159fe57937", features = ["rsa_signing"] }

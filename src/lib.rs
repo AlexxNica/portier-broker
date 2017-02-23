@@ -4,7 +4,6 @@ extern crate log;
 #[macro_use]
 extern crate hyper;
 extern crate iron;
-extern crate lettre;
 extern crate mustache;
 extern crate redis;
 extern crate serde;
@@ -16,6 +15,8 @@ extern crate time;
 extern crate url;
 extern crate urlencoded;
 extern crate gettext;
+extern crate tokio_core;
+extern crate tokio_smtp;
 
 use time::now_utc;
 

@@ -100,10 +100,8 @@ impl Template {
 pub struct Templates {
     /// Page displayed when the confirmation email was sent.
     pub confirm_email: Template,
-    /// HTML formatted email containing the one-type pad.
-    pub email_html: Template,
-    /// Plain text email containing the one-type pad.
-    pub email_text: Template,
+    /// Email containing the one-type pad.
+    pub email: Template,
     /// The error page template.
     pub error: Template,
     /// A dummy form used to redirect back to the RP with a POST request.
@@ -124,8 +122,7 @@ impl Default for Templates {
     fn default() -> Templates {
         Templates {
             confirm_email: Self::compile_template("tmpl/confirm_email.mustache"),
-            email_html: Self::compile_template("tmpl/email_html.mustache"),
-            email_text: Self::compile_template("tmpl/email_text.mustache"),
+            email: Self::compile_template("tmpl/email.mustache"),
             error: Self::compile_template("tmpl/error.mustache"),
             forward: Self::compile_template("tmpl/forward.mustache"),
             fragment_callback: Self::compile_template("tmpl/fragment_callback.mustache"),

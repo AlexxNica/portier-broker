@@ -4,6 +4,9 @@ msgstr "Login afronden voor"
 msgid "You received this email so that we may confirm your email address and finish your login to:"
 msgstr "U ontvangt deze email zodat wij uw email adres kunnen bevestigen en uw login kunnen afronden voor:"
 
+msgid "Follow this link to login:"
+msgstr "Volg deze link om in te loggen:"
+
 msgid "Click here to login"
 msgstr "Klik hier om in te loggen"
 

@@ -5,7 +5,6 @@ use std::error::Error;
 use std::io::Error as IoError;
 use super::hyper::Error as HttpError;
 use super::redis::RedisError;
-use super::lettre::transport::smtp::error::Error as MailError;
 use validation::ValidationError;
 
 
@@ -21,7 +20,6 @@ pub enum BrokerError {
     Io(IoError),
     Redis(RedisError),
     Http(HttpError),
-    Mail(MailError),
 }
 
 pub type BrokerResult<T> = Result<T, BrokerError>;
@@ -35,7 +33,6 @@ impl Error for BrokerError {
             BrokerError::Io(ref err) => err.description(),
             BrokerError::Redis(ref err) => err.description(),
             BrokerError::Http(ref err) => err.description(),
-            BrokerError::Mail(ref err) => err.description(),
         }
     }
 
@@ -47,7 +44,6 @@ impl Error for BrokerError {
             BrokerError::Io(ref e) => Some(e),
             BrokerError::Redis(ref e) => Some(e),
             BrokerError::Http(ref e) => Some(e),
-            BrokerError::Mail(ref e) => Some(e),
         }
     }
 }
@@ -90,4 +86,3 @@ macro_rules! from_error {
 from_error!(IoError, Io);
 from_error!(HttpError, Http);
 from_error!(RedisError, Redis);
-from_error!(MailError, Mail);

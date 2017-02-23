@@ -4,6 +4,9 @@ msgstr "Beende den Loginvorgang für"
 msgid "You received this email so that we may confirm your email address and finish your login to:"
 msgstr "Du hast diese Email erhalten, damit wir deine Emailadresse bestätigen und den Login beenden können:"
 
+msgid "Follow this link to login:"
+msgstr "Folge diesem Link um dich einzuloggen:"
+
 msgid "Click here to login"
 msgstr "Klicke hier um dich einzuloggen"
 

@@ -4,15 +4,14 @@ use emailaddress::EmailAddress;
 use iron::Url;
 use self::ring::rand;
 use super::error::{BrokerError, BrokerResult};
-use super::lettre::email::EmailBuilder;
-use super::lettre::transport::EmailTransport;
-use super::lettre::transport::smtp::SmtpTransportBuilder;
 use super::{Config, create_jwt, crypto};
 use std::collections::HashMap;
-use std::error::Error;
 use std::iter::Iterator;
 use url::percent_encoding::{utf8_percent_encode, QUERY_ENCODE_SET};
 use gettext::Catalog;
+use tokio_core::reactor::Core;
+use tokio_smtp::Mailer;
+use tokio_smtp::request::Mailbox;
 
 
 /// The z-base-32 character set, from which we select characters for the one-time pad.
@@ -60,30 +59,29 @@ pub fn request(app: &Config, email_addr: EmailAddress, client_id: &str, nonce: &
                        utf8_percent_encode(&session, QUERY_ENCODE_SET),
                        utf8_percent_encode(&chars, QUERY_ENCODE_SET));
 
-    let params = &[
+    let body = app.templates.email.render(&[
+        ("from_address", &app.from_address),
+        ("from_name", &app.from_name),
+        ("to_address", &email_addr.to_string()),
         ("client_id", client_id),
         ("code", &chars_fmt),
         ("link", &href),
         ("title", catalog.gettext("Finish logging in to")),
         ("explanation", catalog.gettext("You received this email so that we may confirm your email address and finish your login to:")),
+        ("follow", catalog.gettext("Follow this link to login:")),
         ("click", catalog.gettext("Click here to login")),
         ("alternate", catalog.gettext("Alternatively, enter the following code on the login page:")),
-    ];
-    let email = EmailBuilder::new()
-        .to(email_addr.to_string().as_str())
-        .from((&*app.from_address, &*app.from_name))
-        .alternative(app.templates.email_html.render(params),
-                     app.templates.email_text.render(params))
-        .subject([catalog.gettext("Finish logging in to"), client_id].join(" "))
-        .build()
-        .unwrap_or_else(|err| panic!("unhandled error building email: {}", err.description()));
-    let mut builder = SmtpTransportBuilder::new(app.smtp_server.as_str())?;
-    if let (&Some(ref username), &Some(ref password)) = (&app.smtp_username, &app.smtp_password) {
-        builder = builder.credentials(username.to_string(), password.to_string());
-    }
-    let mut mailer = builder.build();
-    mailer.send(email)?;
-    mailer.close();
+    ]);
+
+    let mut core = Core::new().unwrap();
+    let handle = core.handle();
+    // FIXME: auth
+    let mailer = Mailer::builder(app.smtp_server.clone()).build()?;
+    let return_path = app.from_address.parse().unwrap();
+    let recipients = vec![Mailbox(Some(email_addr))];
+    let f = mailer.send(return_path, recipients, body, &handle);
+    core.run(f)?;
+
     Ok(session)
 
 }
